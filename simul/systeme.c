@@ -101,13 +101,7 @@ void wakeup_getchar(int p, char c) {
 
 PSW scheduler(PSW cpu) {
     if (current_process != -1) {
-        process[current_process].cpu.PC = cpu.PC;
-        process[current_process].cpu.SB = cpu.SB;
-        process[current_process].cpu.SE = cpu.SE;
-        process[current_process].cpu.RI = cpu.RI;
-        for (int DRIndex = 0; DRIndex < 8; DRIndex++) {
-            process[current_process].cpu.DR[DRIndex] = cpu.DR[DRIndex];
-        }
+        process[current_process].cpu = cpu;
     }
     do {
         if (current_process == MAX_PROCESS - 1) {
@@ -115,13 +109,7 @@ PSW scheduler(PSW cpu) {
         }
         current_process = (current_process + 1) % MAX_PROCESS;
     } while (process[current_process].state != READY);
-    cpu.PC = process[current_process].cpu.PC;
-    cpu.SB = process[current_process].cpu.SB;
-    cpu.SE = process[current_process].cpu.SE;
-    cpu.RI = process[current_process].cpu.RI;
-    for (int DRIndex = 0; DRIndex < 8; DRIndex++) {
-         cpu.DR[DRIndex] = process[current_process].cpu.DR[DRIndex];
-    }
+    cpu = process[current_process].cpu;
     return cpu;
 }
 
@@ -173,12 +161,11 @@ PSW system_init(void) {
 
     printf("Booting\n\n");
 
-    process[0].cpu = prepare_idle();
+    process[0].cpu = prepare_prog1();
     process[0].state = READY;
-    process[1].cpu = prepare_getchar();
+
+    process[1].cpu = process[0].cpu;
     process[1].state = READY;
-    process[2].cpu = prepare_prog1();
-    process[2].state = READY;
 
     current_process = 0;
     return create_cpu();
