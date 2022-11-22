@@ -167,6 +167,12 @@ PSW system_init(void) {
     process[1].cpu = process[0].cpu;
     process[1].state = READY;
 
+    process[2].cpu = prepare_idle();
+    process[2].state = READY;
+
+    process[3].cpu = prepare_getchar();
+    process[3].state = READY;
+
     current_process = 0;
     return create_cpu();
 }
